@@ -1,0 +1,15 @@
+.cell {
+  font-family: monospace;
+  background-color: transparent;
+  border: none;
+  font-size: 2em;
+  line-height: 1em;
+  color: darkgrey;
+  &[data-selected="true"] {
+    background-color: "skyblue";
+  }
+
+  &[data-active="true"] {
+    background-color: "powderblue";
+  }
+}
