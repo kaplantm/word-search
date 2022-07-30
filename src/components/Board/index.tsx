@@ -11,10 +11,10 @@ type BoardProps = {
 function Board({ board, onCellActivate }: BoardProps) {
   return (
     <div className={styles.board}>
-      {board.map((row) => (
-        <div className={styles.row}>
-          {row.map((cell) => (
-            <Cell onActivate={onCellActivate} {...cell} />
+      {board.map((row, i) => (
+        <div key={i}>
+          {row.map((cell, j) => (
+            <Cell onActivate={onCellActivate} key={j} {...cell} />
           ))}
         </div>
       ))}
