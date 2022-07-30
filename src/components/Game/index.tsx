@@ -1,4 +1,5 @@
 import { useState } from "react";
+import WordSearchProvider from "../../contexts/WordSearchContext";
 import newPuzzle from "../../lib/generateWordSearch";
 import fillPuzzle from "../../lib/generateWordSearch";
 import { CellData } from "../../lib/sharedTypes.ts/cellData.type";
@@ -22,9 +23,10 @@ const mockWordBoard: CellData[][] = [
   }))
 );
 
+const words = ["batman", "robin", "catwoman", "joker"];
 function Game() {
   const [board, setBoard] = useState(
-    newPuzzle(["batman", "robin", "catwoman", "joker"], { height: 10, width: 10 }).map((row, x) =>
+    newPuzzle(words, { height: 10, width: 10 }).map((row, x) =>
       row.map((character, y) => ({
         character: character.toUpperCase(),
         x,
@@ -36,7 +38,11 @@ function Game() {
   );
   console.log({ board });
   // FUTURE: start/stop/reset/timer
-  return <Board board={board} />;
+  return (
+    <WordSearchProvider words={words}>
+      <Board board={board} />
+    </WordSearchProvider>
+  );
 }
 
 export default Game;

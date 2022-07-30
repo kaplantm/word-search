@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { useWordSearchContext } from "../../contexts/WordSearchContext";
 import { CellData } from "../../lib/sharedTypes.ts/cellData.type";
 import styles from "./styles.module.scss";
 
@@ -7,6 +8,7 @@ type CellProps = CellData & {
 };
 // TODO: now use context instead of props
 function Cell({ x, y, character, selected, active, onActivate }: CellProps) {
+  const data = useWordSearchContext();
   const onClick = () => {
     onActivate?.(x, y, !active);
   };
