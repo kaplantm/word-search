@@ -6,10 +6,10 @@
   line-height: 1em;
   color: darkgrey;
   &[data-selected="true"] {
-    background-color: "skyblue";
+    background-color: skyblue;
   }
 
   &[data-active="true"] {
-    background-color: "powderblue";
+    background-color: powderblue;
   }
 }

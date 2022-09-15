@@ -8,13 +8,13 @@ type BoardProps = {
   onCellActivate?: (x: number, y: number, active: boolean) => void; // TODO: now rename?
 };
 
-function Board({ board, onCellActivate }: BoardProps) {
+function Board({ board }: BoardProps) {
   return (
     <div className={styles.board}>
       {board.map((row, i) => (
         <div key={i}>
           {row.map((cell, j) => (
-            <Cell onActivate={onCellActivate} key={j} {...cell} />
+            <Cell key={j} x={cell.x} y={cell.y} />
           ))}
         </div>
       ))}

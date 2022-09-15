@@ -12,48 +12,70 @@ import { CellData } from "../lib/sharedTypes.ts/cellData.type";
 // Reference: https://medium.com/trabe/how-we-handle-react-context-e43d303a27a2
 
 type WordSearchContextState = {
-  selectedCells: CellData[];
+  board: CellData[][];
   selectCell: (cell: CellData) => void;
   wordsFound: number;
-  foundCells: CellData[];
 };
 
 const defaultContextState: WordSearchContextState = {
-  selectedCells: [] as CellData[],
+  board: [],
   selectCell: (cell: CellData) => {},
   wordsFound: 0,
-  foundCells: [] as CellData[],
 };
 const WordSearchContext = createContext(defaultContextState);
 
-const WordSearchProvider = ({ words, children }: PropsWithChildren<{ words: string[] }>) => {
-  const [selectedCells, setSelectedCells] = useState<CellData[]>([]);
+const WordSearchProvider = ({
+  words,
+  board,
+  children,
+}: PropsWithChildren<{ words: string[]; board: CellData[][] }>) => {
+  const [boardState, setBoardState] = useState<CellData[][]>(board);
   const [wordsFound, setWordsFound] = useState<number>(0);
-  const [foundCells, setFoundCells] = useState<CellData[]>([]);
+  const [activeCells, setActiveCells] = useState<CellData[]>([]);
 
   useEffect(() => {
-    const letters = selectedCells.map((el) => el.character).join("");
+    const letters = activeCells.map((el) => el.character).join("");
     if (words.includes(letters)) {
-      setFoundCells((prev) => {
-        const newCells = selectedCells.filter(
-          (el) => !prev.find((old) => old.x === el.x && old.y === el.y)
-        );
-        if (newCells.length) {
-          return [...prev, ...newCells];
-        }
-        return prev;
+      // found full word, move active cells to selected
+      setBoardState((prev) => {
+        const copy = [...prev];
+        activeCells.forEach((cell) => {
+          copy[cell.x][cell.y].selected = true;
+        });
+        return copy;
       });
-      setSelectedCells([]);
+      setActiveCells([]);
       setWordsFound((prev) => prev + 1);
+    } else {
+      setBoardState((prev) =>
+        prev.map((row) =>
+          row.map((cell) => ({
+            ...cell,
+            active: !!activeCells.find((el) => el.x === cell.x && el.y === cell.y),
+          }))
+        )
+      );
     }
-  }, [selectedCells, words]);
 
-  const selectCell = useCallback(
-    (cell: CellData) => {
-      if (!selectedCells.length) {
-        setSelectedCells((prev) => [...prev, cell]);
+    // {
+    //   const copy = [...prev];
+    //   activeCells.forEach((cell) => {
+    //     if (!copy[cell.x][cell.y].selected) {
+    //       copy[cell.x][cell.y] = { ...copy[cell.x][cell.y], active: true };
+    //     }
+    //   });
+    //   return copy;
+    // }
+  }, [activeCells, words]);
+
+  const selectCell = useCallback((cell: CellData) => {
+    setActiveCells((prev) => {
+      // TODO: reducer
+      if (!prev.length) {
+        return [...prev, cell];
       }
-      const lastCell = selectedCells[selectedCells.length - 1];
+      // TODO: now direction matters
+      const lastCell = prev[prev.length - 1];
       const tr = cell.x === lastCell.x + 1 && cell.y === lastCell.y - 1;
       const tm = cell.x === lastCell.x && cell.y === lastCell.y - 1;
       const tl = cell.x === lastCell.x - 1 && cell.y === lastCell.y - 1;
@@ -62,23 +84,24 @@ const WordSearchProvider = ({ words, children }: PropsWithChildren<{ words: stri
       const bl = cell.x === lastCell.x - 1 && cell.y === lastCell.y + 1;
       const bm = cell.x === lastCell.x && cell.y === lastCell.y + 1;
       const br = cell.x === lastCell.x + 1 && cell.y === lastCell.y + 1;
+      console.log({ tr, tm, tl, ml, mr, bl, bm, br });
       if (tr || tm || tl || ml || mr || bl || bm || br) {
-        setSelectedCells((prev) => [...prev, cell]);
+        console.log("here1");
+        return [...prev, cell];
       } else {
-        setSelectedCells([cell]);
+        console.log("here2");
+        return [cell];
       }
-    },
-    [selectedCells]
-  );
+    });
+  }, []);
 
   const value: WordSearchContextState = useMemo(
     () => ({
-      selectedCells,
+      board: boardState,
       selectCell,
       wordsFound,
-      foundCells,
     }),
-    [selectedCells, selectCell, wordsFound, foundCells]
+    [selectCell, wordsFound, boardState]
   );
 
   return <WordSearchContext.Provider value={value}>{children}</WordSearchContext.Provider>;

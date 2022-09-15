@@ -39,7 +39,7 @@ function Game() {
   console.log({ board });
   // FUTURE: start/stop/reset/timer
   return (
-    <WordSearchProvider words={words}>
+    <WordSearchProvider words={words} board={board}>
       <Board board={board} />
     </WordSearchProvider>
   );
